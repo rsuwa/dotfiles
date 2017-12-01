@@ -1,4 +1,12 @@
 export PATH="$HOME/.rbenv/bin:$PATH"
+
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey "^[[3~" delete-char
+
+bindkey "\e[1~" beginning-of-line
+bindkey "\e[4~" end-of-line
+
 eval "$(rbenv init -)"
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -132,6 +140,16 @@ alias mkdir='mkdir -p'
 
 # sudo の後のコマンドでエイリアスを有効にする
 alias sudo='sudo '
+
+alias gita="git add && git status"
+alias gits="git status"
+alias gitc="git commit"
+alias gitp="git push origin master"
+alias gitl="git log --oneline"
+
+alias cdd="cd ~/Downloads"
+alias cddoc="cd ~/Documents/"
+alias cdtex="cd ~/Documents/TeX"
 
 # グローバルエイリアス
 alias -g L='| less'
