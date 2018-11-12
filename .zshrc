@@ -15,6 +15,9 @@ fi
 source ~/.zsh/os_select.zsh
 source ~/.zsh/aliases.zsh
 source ~/.zsh/fzf.zsh
+if [[ -f ~/.zshrc.local ]]; then
+    source ~/.zshrc.local
+fi
 
 bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
