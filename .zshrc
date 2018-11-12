@@ -1,4 +1,16 @@
-export PATH="$HOME/.rbenv/bin:$PATH"
+if [[ -f ~/.zplug/init.zsh ]]; then
+    export ZPLUG_LOADFILE=~/.zsh/zplug.zsh
+    source ~/.zplug/init.zsh
+
+    if ! zplug check --verbose; then
+        printf "Install? [y/N]: "
+        if read -q; then
+            echo; zplug install
+        fi
+        echo
+    fi
+    zplug load
+fi
 
 bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
@@ -7,181 +19,155 @@ bindkey "^[[3~" delete-char
 bindkey "\e[1~" beginning-of-line
 bindkey "\e[4~" end-of-line
 
-eval "$(rbenv init -)"
-# Lines configured by zsh-newuser-install
-HISTFILE=~/.histfile
-HISTSIZE=1000000
-SAVEHIST=1000000
-bindkey -e
-# End of lines configured by zsh-newuser-install
+function history-fzf() {
+  local tac
 
-# The following lines were added by compinstall
-zstyle :compinstall filename '/Users/Ryota/.zshrc'
+  if which tac > /dev/null; then
+    tac="tac"
+  else
+    tac="tail -r"
+  fi
 
-fpath=(/usr/local/share/zsh-completions $fpath)
-autoload -Uz compinit
-compinit -u
-# End of lines added by compinstall
+  BUFFER=$(history -n 1 | eval $tac | fzf --query "$LBUFFER")
+  CURSOR=$#BUFFER
 
-# 環境変数
-export LANG=ja_JP.UTF-8
-
-
-# 色を使用出来るようにする
-autoload -Uz colors
-colors
-
-# プロンプト
-# 1行表示
-# PROMPT="%~ %# "
-# 2行表示
-PROMPT="%{${fg[green]}%}[%n@%m]%{${reset_color}%} %~
-%# "
-
-
-# 単語の区切り文字を指定する
-autoload -Uz select-word-style
-select-word-style default
-# ここで指定した文字は単語区切りとみなされる
-# / も区切りと扱うので、^W でディレクトリ１つ分を削除できる
-zstyle ':zle:*' word-chars " /=;@:{},|"
-zstyle ':zle:*' word-style unspecified
-
-########################################
-# 補完
-
-# 補完で小文字でも大文字にマッチさせる
-zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
-
-
-# ../ の後は今いるディレクトリを補完しない
-zstyle ':completion:*' ignore-parents parent pwd ..
-
-# sudo の後ろでコマンド名を補完する
-zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
-                   /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
-
-# ps コマンドのプロセス名補完
-zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
-
-
-########################################
-# vcs_info
-autoload -Uz vcs_info
-autoload -Uz add-zsh-hook
-
-zstyle ':vcs_info:*' formats '%F{green}(%s)-[%b]%f'
-zstyle ':vcs_info:*' actionformats '%F{red}(%s)-[%b|%a]%f'
-
-function _update_vcs_info_msg() {
-    LANG=en_US.UTF-8 vcs_info
-    RPROMPT="${vcs_info_msg_0_}"
+  zle reset-prompt
 }
-add-zsh-hook precmd _update_vcs_info_msg
 
+zle -N history-fzf
+bindkey '^R' history-fzf
 
-########################################
-# オプション
-# 日本語ファイル名を表示可能にする
-setopt print_eight_bit
+function ghq-fzf() {
+  local selected_dir=$(ghq list | fzf --query="$LBUFFER")
 
-# beep を無効にする
-setopt no_beep
+  if [ -n "$selected_dir" ]; then
+    BUFFER="cd $(ghq root)/${selected_dir}"
+    zle accept-line
+  fi
 
-# フローコントロールを無効にする
-setopt no_flow_control
+  zle reset-prompt
+}
 
-# Ctrl+Dでzshを終了しない
-setopt ignore_eof
+zle -N ghq-fzf
+bindkey "^]" ghq-fzf
 
-# '#' 以降をコメントとして扱う
-setopt interactive_comments
+function fzf-src-remote () {
+  local selected_repo=$(ghq list -p | fzf --query "$LBUFFER" | rev | cut -d "/" -f -2 | rev)
+  echo $selected_repo
+  if [ -n "$selected_repo" ]; then
+    BUFFER="hub browse ${selected_repo}"
+    # fzfで選択中, Enter を押した瞬間に実行する
+    zle accept-line
+  fi
+  zle clear-screen
+}
 
-# ディレクトリ名だけでcdする
-setopt auto_cd
+zle -N fzf-src-remote
+bindkey '^^' fzf-src-remote
 
-# cd したら自動的にpushdする
-setopt auto_pushd
-# 重複したディレクトリを追加しない
-setopt pushd_ignore_dups
+# completion
+setopt correct
+setopt correct_all
+setopt COMBINING_CHARS
+# Important
+zstyle ':completion:*:default' menu select=2
 
-# 同時に起動したzshの間でヒストリを共有する
-setopt share_history
+# Completing Groping
+zstyle ':completion:*:options' description 'yes'
+zstyle ':completion:*:descriptions' format '%F{yellow}Completing %B%d%b%f'
+zstyle ':completion:*' group-name ''
 
-# 同じコマンドをヒストリに残さない
-setopt hist_ignore_all_dups
+# Completing misc
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*' completer _expand _complete _match _prefix _approximate _list _history
+zstyle ':completion:*:*files' ignored-patterns '*?.o' '*?~' '*\#'
+zstyle ':completion:*' use-cache true
+zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
 
-# スペースから始まるコマンド行はヒストリに残さない
+# Directory
+zstyle ':completion:*:cd:*' ignore-parents parent pwd
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+# default: --
+zstyle ':completion:*' list-separator '-->'
+zstyle ':completion:*:manuals' separate-sections true
+
+# history
+setopt hist_ignore_dups
 setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_nodups
+setopt hist_no_functions
+setopt share_history
+setopt extended_history
+setopt append_history
+setopt hist_verify
 
-# ヒストリに保存するときに余分なスペースを削除する
-setopt hist_reduce_blanks
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt list_packed
 
-# 高機能なワイルドカード展開を使用する
+setopt print_eight_bit
+setopt always_last_prompt
+setopt auto_menu
+setopt auto_param_keys
+setopt auto_param_slash
+setopt complete_in_word
+setopt globdots
+setopt interactive_comments
+setopt list_types
+setopt magic_equal_subst
+
+# No Beep
+setopt no_beep
+setopt no_list_beep
+setopt no_hist_beep
+
+setopt no_case_glob
 setopt extended_glob
 
-########################################
-# キーバインド
+# Automaticall escape URL when copy and paste
+autoload -Uz url-quote-magic
+zle -N self-insert url-quote-magic
 
-# ^R で履歴検索をするときに * でワイルドカードを使用出来るようにする
-bindkey '^R' history-incremental-pattern-search-backward
+# Global aliases
+alias -g G='| grep'
+alias -g W='| wc'
+alias -g X='| xargs'
+alias -g F='| "$(available $INTERACTIVE_FILTER)"'
+alias -g S="| sort"
+alias -g N=" >/dev/null 2>&1"
+alias -g N1=" >/dev/null"
+alias -g N2=" 2>/dev/null"
 
-########################################
-# エイリアス
-
-alias la='ls -a'
-alias ll='ls -l'
-
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-
-alias mkdir='mkdir -p'
-
-# sudo の後のコマンドでエイリアスを有効にする
-alias sudo='sudo '
-
-alias gita="git add && git status"
-alias gits="git status"
-alias gitc="git commit"
-alias gitp="git push origin master"
-alias gitl="git log --oneline"
+# Common aliases
+alias ls='ls -GF'
+alias ..='cd ..'
+alias ld='ls -ld'          # Show info about the directory
+alias lla='ls -lAF'        # Show hidden all files
+alias ll='ls -lF'          # Show long file information
+alias la='ls -AF'          # Show hidden files
+alias lx='ls -lXB'         # Sort by extension
+alias lk='ls -lSr'         # Sort by size, biggest last
+alias lc='ls -ltcr'        # Sort by and show change time, most recent last
+alias lu='ls -ltur'        # Sort by and show access time, most recent last
+alias lt='ls -ltr'         # Sort by date, most recent last
+alias lr='ls -lR'          # Recursive ls
 
 alias cdd="cd ~/Downloads"
-alias cddoc="cd ~/Documents/"
-alias cdtex="cd ~/Documents/TeX"
+alias nswitch="source ~/.proxy_toggle"
 
-# グローバルエイリアス
-alias -g L='| less'
-alias -g G='| grep'
+# The ubiquitous 'll': directories first, with alphanumeric sorting:
+#alias ll='ls -lv --group-directories-first'
 
-# C で標準出力をクリップボードにコピーする
-# mollifier delta blog : http://mollifier.hatenablog.com/entry/20100317/p1
-if which pbcopy >/dev/null 2>&1 ; then
-    # Mac
-    alias -g C='| pbcopy'
-elif which xsel >/dev/null 2>&1 ; then
-    # Linux
-    alias -g C='| xsel --input --clipboard'
-elif which putclip >/dev/null 2>&1 ; then
-    # Cygwin
-    alias -g C='| putclip'
-fi
+alias cp="${ZSH_VERSION:+nocorrect} cp -i"
+alias mv="${ZSH_VERSION:+nocorrect} mv -i"
+alias mkdir="${ZSH_VERSION:+nocorrect} mkdir"
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-
-########################################
-# OS 別の設定
-case ${OSTYPE} in
-    darwin*)
-        #Mac用の設定
-        export CLICOLOR=1
-        alias ls='ls -G -F'
-        ;;
-    linux*)
-        #Linux用の設定
-        alias ls='ls -F --color=auto'
-        ;;
-esac
-
-# vim:set ft=zsh:
+eval "$(rbenv init -)"
