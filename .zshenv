@@ -71,7 +71,6 @@ export CORRECT_IGNORE='_*'
 export CORRECT_IGNORE_FILE='.*'
 
 export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
-# export WORDCHARS='*?.[]~&;!#$%^(){}<>'
 
 # History file and its size
 export HISTFILE=~/.zsh_history
@@ -95,6 +94,3 @@ if [[ $UID == 0 ]]; then
     unset HISTFILE
     export SAVEHIST=0
 fi
-
-# available $INTERACTIVE_FILTER
-export INTERACTIVE_FILTER="fzf:peco:percol:gof:pick"
