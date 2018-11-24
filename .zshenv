@@ -4,7 +4,6 @@ if [ -x /usr/libexec/path_helper ]; then
         eval `/usr/libexec/path_helper -s`
 fi
 path=( \
-    /usr/local/opt/mysql@5.7/bin \
     ~/bin(N-/) \
     ~/.zplug/bin(N-/) \
     $path \
