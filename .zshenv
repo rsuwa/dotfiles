@@ -4,6 +4,7 @@ if [ -x /usr/libexec/path_helper ]; then
         eval `/usr/libexec/path_helper -s`
 fi
 path=( \
+    /usr/local/opt/mysql@5.7/bin \
     ~/bin(N-/) \
     ~/.zplug/bin(N-/) \
     $path \
@@ -72,11 +73,6 @@ export CORRECT_IGNORE_FILE='.*'
 
 export WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 
-# History file and its size
-export HISTFILE=~/.zsh_history
-export HISTSIZE=1000000
-export SAVEHIST=1000000
-
 # fzf - command-line fuzzy finder (https://github.com/junegunn/fzf)
 export FZF_DEFAULT_OPTS="--extended --ansi --multi"
 
@@ -84,7 +80,7 @@ export FZF_DEFAULT_OPTS="--extended --ansi --multi"
 # History file
 export HISTFILE=~/.zsh_history
 # History size in memory
-export HISTSIZE=10000
+export HISTSIZE=1000000
 # The number of histsize
 export SAVEHIST=1000000
 # The size of asking history
