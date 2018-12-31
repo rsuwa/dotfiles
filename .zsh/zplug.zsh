@@ -9,12 +9,10 @@ zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
     rename-to:"fzf", \
-    frozen:1
 
 zplug "peco/peco", \
     as:command, \
     from:gh-r, \
-    frozen:1
 
 zplug "motemen/ghq", \
     as:command, \
