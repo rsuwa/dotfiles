@@ -8,7 +8,7 @@ zplug "zsh-users/zsh-autosuggestions"
 zplug "junegunn/fzf-bin", \
     as:command, \
     from:gh-r, \
-    rename-to:"fzf", \
+    rename-to:"fzf" \
 
 zplug "motemen/ghq", \
     as:command, \
