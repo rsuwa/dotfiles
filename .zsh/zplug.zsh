@@ -18,3 +18,6 @@ zplug "motemen/ghq", \
 # Theme
 zplug mafredri/zsh-async, from:github
 zplug sindresorhus/pure, use:pure.zsh, from:github, as:theme
+
+# Others
+zplug "lukechilds/zsh-nvm"
