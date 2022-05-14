@@ -5,7 +5,6 @@ if [ -x /usr/libexec/path_helper ]; then
 fi
 path=( \
     ~/bin(N-/) \
-    ~/.zplug/bin(N-/) \
     $path \
     )
 
@@ -20,8 +19,8 @@ fpath=( \
 
 if type brew &>/dev/null; then
     fpath=( \
-        $(brew --prefix)/share/zsh-completions(N-/) \
-        $(brew --prefix)/share/zsh/site-functions(N-/) \
+        /opt/homebrew/share/zsh-completions(N-/) \
+        /opt/homebrew/share/zsh/site-functions(N-/) \
         $fpath \
         )
 fi
