@@ -1,17 +1,3 @@
-if [[ -f ~/.zplug/init.zsh ]]; then
-    export ZPLUG_LOADFILE=~/.zsh/zplug.zsh
-    source ~/.zplug/init.zsh
-
-    if ! zplug check --verbose; then
-        printf "Install? [y/N]: "
-        if read -q; then
-            echo; zplug install
-        fi
-        echo
-    fi
-    zplug load
-fi
-
 source ~/.zsh/os_select.zsh
 source ~/.zsh/aliases.zsh
 source ~/.zsh/fzf.zsh
@@ -92,4 +78,3 @@ setopt extended_glob
 # Automaticall escape URL when copy and paste
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
-

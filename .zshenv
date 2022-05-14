@@ -15,9 +15,16 @@ fpath=( \
     ~/.zsh/completions(N-/) \
     ~/.zsh/functions(N-/) \
     ~/.zsh/plugins/zsh-completions(N-/) \
-    /usr/local/share/zsh/site-functions(N-/) \
     $fpath \
     )
+
+if type brew &>/dev/null; then
+    fpath=( \
+        $(brew --prefix)/share/zsh-completions(N-/) \
+        $(brew --prefix)/share/zsh/site-functions(N-/) \
+        $fpath \
+        )
+fi
 
 # autoload
 autoload -Uz run-help
